@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Callbacks</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  </head>
+  <body>
+    <button onclick="executeCallback()">Execute Callback</button>
+    <div id="output"></div>
+    <script>
+      const output = document.getElementById("output");
+
+      function delayCallBack(callback) {
+        setTimeout(() => {
+          callback("Callback executed after 5 seconds");
+        }, 5000);
+      }
+      function executeCallback() {
+        output.innerHTML = "<p>Waiting......</p>";
+        delayCallBack((message) => {
+          output.innerHTML = `<p class="message">${message}</p>`;
+          fetch("https://dummyjson.com/posts")
+            .then((response) => response.json())
+            .then((data) => {
+              const postsHTML = data.posts
+                .map(
+                  (post, index) => `
+                <div class="box ${index % 2 === 0 ? "even" : "odd"}">
+                  <h3>${post.title}</h3>
+                  <p>${post.body}</p>
+                  <p><strong>Likes:</strong> ${
+                    post.reactions.likes
+                  } | <strong>Dislikes:</strong> ${post.reactions.dislikes}</p>
+                </div>
+              `
+                )
+                .join("");
+
+              output.innerHTML +=
+                `<h2 class="heading">Posts</h2> ` +
+                `<br>` +
+                `<div class="postContainer">${postsHTML}</div>`;
+            })
+            .catch(
+              (error) =>
+                (output.innerHTML += `<br><br>Error fetching data: ${error}`)
+            );
+        });
+      }
+    </script>
+  </body>
+</html>

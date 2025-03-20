@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Promises</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <style>
+      body {
+        background-color: #8e8cef;
+      }
+      button {
+        background-color: #c554ea;
+      }
+      button:hover {
+        background-color: #f40bd4;
+      }
+      #output {
+        background-color: rgb(194, 213, 248);
+      }
+      .heading {
+        background-color: rgb(194, 213, 248);
+      }
+      .box {
+        border: 1px solid #575e93;
+      }
+      .even {
+        background-color: #daf5f9; /* Light shade */
+      }
+
+      .odd {
+        background-color: #a3c0cb; /* Darker shade */
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="executePromise()">Execute Promise</button>
+    <div id="output"></div>
+    <script>
+      const output = document.getElementById("output");
+
+      function fetchDataWithPromise() {
+        return new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject("Operation timed out.");
+          }, 5000);
+
+          fetch("https://dummyjson.com/posts")
+            .then((response) => response.json())
+            .then((data) => {
+              clearTimeout(timeoutId); // Clear the timeout if successful
+              //   adding odd and even class for even and odd index
+              const postsHTML = data.posts
+                .map(
+                  (post, index) => `
+                <div class="box ${index % 2 === 0 ? "even" : "odd"}"> 
+                <h3>${post.title}</h3>
+                <p>${post.body}</p>
+                <p>
+                    <strong>Likes:</strong> ${post.reactions.likes} | 
+                    <strong>Dislikes:</strong> ${post.reactions.dislikes}
+                </p>
+                </div>
+                `
+                )
+                .join("");
+              resolve(postsHTML);
+            })
+            .catch((error) => {
+              clearTimeout(timeoutId);
+              reject(error);
+            });
+        });
+      }
+
+      function executePromise() {
+        output.innerHTML = "<p>Loading....</p>";
+        fetchDataWithPromise()
+          .then((htmlContent) => {
+            output.innerHTML = `
+            <h2 class="heading">Posts</h2>
+            <div class="postContainer">${htmlContent}</div>
+        `;
+          })
+          .catch((error) => {
+            output.innerHTML = `<div class="error"><p>${error}</p></div>`;
+          });
+      }
+    </script>
+  </body>
+</html>
